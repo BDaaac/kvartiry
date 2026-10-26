@@ -7,10 +7,11 @@ import { analyze, monthlySeries, debts } from '../lib/calc'
 import { money, moneyShort, pct, sourceLabel } from '../lib/format'
 import { exportExcel } from '../lib/export'
 import { Chips, Dot, PropertySelect } from '../components/ui'
+import Icon from '../components/Icon'
 
-const C_INCOME = '#2a78d6'
-const C_EXPENSE = '#eb6834'
-const C_INK = '#1f2933'
+const C_INCOME = '#5b4fe0'
+const C_EXPENSE = '#e8613f'
+const C_INK = '#1b1a2e'
 
 const PERIODS = [
   { id: 'month', label: 'Этот месяц' },
@@ -55,7 +56,7 @@ export default function DashboardPage() {
     <div className="page">
       <div className="page-head">
         <h1>Деньги</h1>
-        <button className="btn" onClick={() => exportExcel(data, from, to, ids, title)}>⬇ Excel</button>
+        <button className="btn" onClick={() => exportExcel(data, from, to, ids, title)}><Icon name="download" size={18} /> Excel</button>
       </div>
 
       <Chips value={period} onChange={setPeriod} options={PERIODS} />
@@ -71,10 +72,16 @@ export default function DashboardPage() {
 
       <p className="period-title">{title}{pid ? ` · ${propertyById.get(pid)?.name}` : ''}</p>
 
+      <section className="hero">
+        <small>Прибыль</small>
+        <b>{money(a.profit)}</b>
+        <div className="hero-row">
+          <span><i className="sw inc" />Получено {money(a.income)}</span>
+          <span><i className="sw exp" />Расходы {money(a.expenses)}</span>
+        </div>
+      </section>
+
       <div className="kpis">
-        <Kpi label="Получено" value={money(a.income)} />
-        <Kpi label="Расходы" value={money(a.expenses)} />
-        <Kpi label="Прибыль" value={money(a.profit)} tone={a.profit < 0 ? 'neg' : 'pos'} />
         <Kpi label="Загрузка" value={pct(a.occupancy)} sub={`${a.nights} ноч. из ${a.days * (pid ? 1 : Math.max(1, data.properties.length))}`} />
         <Kpi label="Средняя цена за ночь" value={money(a.adr)} sub="посуточные брони" />
         <Kpi label="Долги гостей" value={money(owedNow.reduce((s, d) => s + d.left, 0))} tone={owedNow.length ? 'neg' : ''} sub={owedNow.length ? `${owedNow.length} брон.` : 'нет'} />

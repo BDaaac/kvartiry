@@ -1,9 +1,11 @@
-// Рисует простые PNG-иконки (домик на бирюзовом фоне) без внешних библиотек.
+// Рисует PNG-иконки Rentiq (белый домик на индиго-градиенте) без внешних библиотек.
 import { writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
 
-const BG = [15, 118, 110]
+const TOP = [112, 99, 242]
+const BOTTOM = [74, 63, 208]
 const FG = [255, 255, 255]
+const DOOR = [232, 97, 63]
 
 function crc32(buf) {
   let c, crc = 0xffffffff
@@ -22,6 +24,13 @@ function chunk(type, data) {
   return Buffer.concat([len, td, crc])
 }
 
+function pixel(x, y) {
+  const h = isHouse(x, y)
+  if (h === 'door') return DOOR
+  if (h) return FG
+  return TOP.map((c, i) => Math.round(c + (BOTTOM[i] - c) * y))
+}
+
 function isHouse(x, y) {
   // координаты 0..1
   const roofTop = 0.22, roofBase = 0.48, wallBottom = 0.78
@@ -31,7 +40,7 @@ function isHouse(x, y) {
   }
   if (y > roofBase && y <= wallBottom && x >= 0.27 && x <= 0.73) {
     // дверь
-    if (x >= 0.44 && x <= 0.56 && y >= 0.6) return false
+    if (x >= 0.44 && x <= 0.56 && y >= 0.6) return 'door'
     return true
   }
   return false
@@ -42,7 +51,7 @@ function png(size) {
   for (let y = 0; y < size; y++) {
     const row = Buffer.alloc(1 + size * 3)
     for (let x = 0; x < size; x++) {
-      const c = isHouse((x + 0.5) / size, (y + 0.5) / size) ? FG : BG
+      const c = pixel((x + 0.5) / size, (y + 0.5) / size)
       row.set(c, 1 + x * 3)
     }
     rows.push(row)

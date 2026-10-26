@@ -19,7 +19,8 @@ export default function Login() {
     <div className="login">
       <form className="card login-card" onSubmit={submit}>
         <img src="./icon-192.png" alt="" className="login-logo" />
-        <h1>Квартиры</h1>
+        <h1 className="login-title">Rent<b>iq</b></h1>
+        <p className="muted login-sub">Брони, календарь и деньги по вашим квартирам</p>
         <label className="field">
           <span>Почта</span>
           <input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />

@@ -5,6 +5,7 @@ import { fmtDate, today, nightsLabel } from '../lib/dates'
 import { balance, endOf, nightsOf } from '../lib/calc'
 import { money, sourceLabel } from '../lib/format'
 import { Chips, Dot, Empty, PropertySelect } from '../components/ui'
+import Icon from '../components/Icon'
 
 const FILTERS = [
   { id: 'now', label: 'Текущие и будущие' },
@@ -38,7 +39,8 @@ export default function BookingsPage() {
     <div className="page">
       <div className="page-head">
         <h1>Брони</h1>
-        <Link className="btn primary" to="/booking/new">+ Бронь</Link>
+        <Link className="btn" to="/guests"><Icon name="users" size={18} /> Гости</Link>
+        <Link className="btn primary" to="/booking/new"><Icon name="plus" size={18} /> Бронь</Link>
       </div>
       <Chips value={filter} onChange={setFilter} options={FILTERS} />
       <div className="toolbar">

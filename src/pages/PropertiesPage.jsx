@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useData } from '../store'
 import { money, PROPERTY_COLORS } from '../lib/format'
 import { Field, MoneyInput, Sheet, Dot, Empty } from '../components/ui'
+import { EXAMPLE_WELCOME, EXAMPLE_PAID, PLACEHOLDERS } from '../lib/welcome'
 
 export default function PropertiesPage() {
   const { data } = useData()
@@ -57,7 +58,7 @@ function PropertyForm({ value, onClose }) {
         id: f.id, name: f.name.trim(), address: f.address || null, color: f.color,
         rate_daily: f.rate_daily === '' ? null : +f.rate_daily,
         rate_monthly: f.rate_monthly === '' ? null : +f.rate_monthly,
-        notes: f.notes || null, archived: !!f.archived,
+        notes: f.notes || null, welcome_message: f.welcome_message || null, paid_message: f.paid_message || null, archived: !!f.archived,
       })
       notify('Сохранено')
       onClose()
@@ -95,6 +96,21 @@ function PropertyForm({ value, onClose }) {
         <Field label="Заметки" hint="Код домофона, Wi-Fi, где ключи — видно только вам">
           <textarea rows={3} value={f.notes || ''} onChange={(e) => set({ notes: e.target.value })} />
         </Field>
+        <Field label="1. Сообщение после бронирования (WhatsApp)" hint="Адрес, Wi-Fi, правила — без кода доступа">
+          <textarea rows={8} value={f.welcome_message || ''} onChange={(e) => set({ welcome_message: e.target.value })}
+            placeholder="Адрес, как заселиться, Wi-Fi, правила…" />
+        </Field>
+        {!f.welcome_message && (
+          <button type="button" className="btn small" onClick={() => set({ welcome_message: EXAMPLE_WELCOME })}>Вставить пример</button>
+        )}
+        <Field label="2. Сообщение после оплаты (WhatsApp)" hint="Код доступа подставится из брони на место {код}">
+          <textarea rows={6} value={f.paid_message || ''} onChange={(e) => set({ paid_message: e.target.value })}
+            placeholder="Как войти, код доступа {код}…" />
+        </Field>
+        {!f.paid_message && (
+          <button type="button" className="btn small" onClick={() => set({ paid_message: EXAMPLE_PAID })}>Вставить пример</button>
+        )}
+        <p className="muted small-note">В тексте можно писать: {PLACEHOLDERS.map((p) => `${p.key} — ${p.hint}`).join(', ')}</p>
         {f.id && (
           <label className="check">
             <input type="checkbox" checked={!!f.archived} onChange={(e) => set({ archived: e.target.checked })} /> В архиве (не показывать в календаре)

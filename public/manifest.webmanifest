@@ -1,10 +1,10 @@
 {
-  "name": "Квартиры — учёт аренды",
-  "short_name": "Квартиры",
+  "name": "Rentiq — учёт аренды",
+  "short_name": "Rentiq",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f6f7f9",
-  "theme_color": "#0f766e",
+  "background_color": "#f6f5fb",
+  "theme_color": "#5b4fe0",
   "lang": "ru",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },

@@ -1,6 +1,7 @@
 // Слой данных: Supabase, а если ключи не заданы — демо-режим с данными в браузере.
 import { createClient } from '@supabase/supabase-js'
 import { addDays, today, addMonths } from './dates'
+import { EXAMPLE_WELCOME, EXAMPLE_PAID } from './welcome'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -8,6 +9,8 @@ const key = import.meta.env.VITE_SUPABASE_ANON_KEY
 export const supabase = url && key ? createClient(url, key) : null
 export const isDemo = !supabase
 export const supabaseUrl = url
+// Имя Edge Function с календарём (так она названа в Supabase при создании)
+const CALENDAR_FUNCTION = 'bright-task'
 
 export const TABLES = ['properties', 'bookings', 'payments', 'expenses']
 
@@ -15,6 +18,7 @@ function humanError(error) {
   if (!error) return null
   if (error.code === '23P01') return 'Эти даты уже заняты другой бронью в этой квартире'
   if (error.code === '23514') return 'Проверьте даты: выезд должен быть позже заезда'
+  if (error.code === 'PGRST204') return 'База устарела: запустите в Supabase SQL-файлы из папки supabase/migrations'
   return error.message || 'Ошибка сохранения'
 }
 
@@ -33,7 +37,7 @@ function demoSeed() {
   const p1 = uid(), p2 = uid()
   const b = (property_id, ci, n, price, name, extra = {}) => ({
     id: uid(), property_id, mode: 'daily', check_in: addDays(t, ci), check_out: addDays(t, ci + n),
-    guest_name: name, guest_phone: '87071234567', guests_count: 2, price_total: price,
+    guest_name: name, guest_phone: '8707' + String(1234567 + name.length * 1111 + name.charCodeAt(0)).slice(-7), guests_count: 2, price_total: price,
     monthly_rate: null, deposit: 0, source: 'krisha', status: 'confirmed', notes: '', ...extra,
   })
   const bookings = [
@@ -59,8 +63,8 @@ function demoSeed() {
   ]
   return {
     properties: [
-      { id: p1, name: 'Квартира на Абая', address: 'пр. Абая, 10', color: '#0f766e', rate_daily: 15000, rate_monthly: 250000, notes: 'Wi-Fi: home123', archived: false },
-      { id: p2, name: 'Квартира на Сатпаева', address: 'ул. Сатпаева, 5', color: '#2563eb', rate_daily: 14000, rate_monthly: 230000, notes: '', archived: false },
+      { id: p1, name: 'Квартира на Абая', address: 'пр. Абая, 10', color: '#5b4fe0', rate_daily: 15000, rate_monthly: 250000, notes: 'Wi-Fi: home123', welcome_message: EXAMPLE_WELCOME, paid_message: EXAMPLE_PAID, archived: false },
+      { id: p2, name: 'Квартира на Сатпаева', address: 'ул. Сатпаева, 5', color: '#e8613f', rate_daily: 14000, rate_monthly: 230000, notes: '', archived: false },
     ],
     bookings, payments, expenses,
   }
@@ -132,5 +136,5 @@ export async function calendarFeedUrl() {
   if (isDemo) return null
   let rows = await sb(supabase.from('calendar_tokens').select('token'))
   if (!rows.length) rows = [await sb(supabase.from('calendar_tokens').insert({}).select('token').single())]
-  return `${url.replace(/^https:/, 'webcal:')}/functions/v1/calendar?token=${rows[0].token}`
+  return `${url.replace(/^https:/, 'webcal:')}/functions/v1/${CALENDAR_FUNCTION}?token=${rows[0].token}`
 }

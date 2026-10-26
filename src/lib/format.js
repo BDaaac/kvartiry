@@ -58,4 +58,4 @@ export const STATUSES = [
 ]
 export const statusLabel = (id) => STATUSES.find((s) => s.id === id)?.label || id
 
-export const PROPERTY_COLORS = ['#0f766e', '#2563eb', '#c2410c', '#7c3aed', '#be185d', '#4d7c0f', '#0369a1', '#a16207']
+export const PROPERTY_COLORS = ['#5b4fe0', '#e8613f', '#0f9f8f', '#d9468f', '#2f86d6', '#c88a12', '#7a3fd0', '#3f9142']

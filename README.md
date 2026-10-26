@@ -1,4 +1,4 @@
-# Квартиры — учёт аренды
+# Rentiq — учёт аренды
 
 Веб-приложение для учёта посуточной и помесячной аренды нескольких квартир:
 шахматка-календарь, брони, платежи, расходы, дашборд с аналитикой, выгрузка в Excel
@@ -29,7 +29,7 @@ npm run dev
 5. **Project Settings → API**: скопируйте `Project URL` и ключ `anon public`.
 
 ### 2. Календарь для iPhone (Edge Function)
-1. **Edge Functions → Deploy a new function → Via Editor**, имя: `calendar`.
+1. **Edge Functions → Deploy a new function → Via Editor**. Имя функции должно совпадать с `CALENDAR_FUNCTION` в `src/lib/db.js` (сейчас `bright-task`).
 2. Вставьте код из `supabase/functions/calendar/index.ts` → **Deploy**.
 3. В настройках функции выключите **Verify JWT** (Enforce JWT verification) → Save.
 4. В приложении: **Ещё → Календарь на iPhone → Получить ссылку → Подписаться**.

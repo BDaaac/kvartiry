@@ -89,7 +89,7 @@ export async function exportExcel(data, from, to, propertyIds, title) {
     .map((e) => ({ Дата: e.spent_at, Квартира: pname(e.property_id), Категория: e.category, 'Сумма, ₸': +e.amount, Комментарий: e.note || '' }))
   XLSX.utils.book_append_sheet(wb, sheet(expenses, [11, 22, 16, 12, 30]), 'Расходы')
 
-  XLSX.writeFile(wb, `Квартиры ${title || `${from}_${addDays(to, -1)}`}.xlsx`)
+  XLSX.writeFile(wb, `Rentiq ${title || `${from}_${addDays(to, -1)}`}.xlsx`)
 }
 
 function monthsBetween(from, to) {

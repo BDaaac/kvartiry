@@ -4,6 +4,7 @@ import { useData } from '../store'
 import { addDays, addMonths, diffDays, fmtDate, fmtMonth, monthStart, nextMonthStart, today, toDate, weekday, WEEKDAYS, nightsLabel } from '../lib/dates'
 import { isActive, endOf, balance, todayEvents, nightsOf } from '../lib/calc'
 import { Dot, Empty } from '../components/ui'
+import Icon from '../components/Icon'
 
 const W = 44 // ширина дня, px
 
@@ -44,13 +45,13 @@ export default function CalendarPage() {
     <div className="page">
       <div className="page-head">
         <h1>Календарь</h1>
-        <Link className="btn primary" to="/booking/new">+ Бронь</Link>
+        <Link className="btn primary" to="/booking/new"><Icon name="plus" size={18} /> Бронь</Link>
       </div>
 
       <div className="month-nav">
-        <button className="icon-btn" onClick={() => setMonth(addMonths(month, -1))} aria-label="Предыдущий месяц">‹</button>
+        <button className="icon-btn" onClick={() => setMonth(addMonths(month, -1))} aria-label="Предыдущий месяц"><Icon name="left" /></button>
         <strong>{fmtMonth(month)}</strong>
-        <button className="icon-btn" onClick={() => setMonth(addMonths(month, 1))} aria-label="Следующий месяц">›</button>
+        <button className="icon-btn" onClick={() => setMonth(addMonths(month, 1))} aria-label="Следующий месяц"><Icon name="right" /></button>
         {month !== monthStart(t) && <button className="btn small" onClick={() => setMonth(monthStart(t))}>Сегодня</button>}
       </div>
 

@@ -10,6 +10,9 @@ import DashboardPage from './pages/DashboardPage'
 import ExpensesPage from './pages/ExpensesPage'
 import PropertiesPage from './pages/PropertiesPage'
 import MorePage from './pages/MorePage'
+import GuestsPage from './pages/GuestsPage'
+import Icon, { Logo } from './components/Icon'
+import { fmtDate, today } from './lib/dates'
 
 export default function App() {
   const [session, setSession] = useState(isDemo ? 'demo' : undefined)
@@ -32,11 +35,11 @@ export default function App() {
 }
 
 const TABS = [
-  { to: '/calendar', label: 'Календарь', icon: '📅' },
-  { to: '/bookings', label: 'Брони', icon: '🔑' },
-  { to: '/money', label: 'Деньги', icon: '📊' },
-  { to: '/expenses', label: 'Расходы', icon: '🧾' },
-  { to: '/more', label: 'Ещё', icon: '☰' },
+  { to: '/calendar', label: 'Календарь', icon: 'calendar' },
+  { to: '/bookings', label: 'Брони', icon: 'key' },
+  { to: '/money', label: 'Деньги', icon: 'chart' },
+  { to: '/expenses', label: 'Расходы', icon: 'receipt' },
+  { to: '/more', label: 'Ещё', icon: 'grid' },
 ]
 
 function Shell() {
@@ -44,6 +47,10 @@ function Shell() {
   return (
     <div className="app">
       {isDemo && <div className="demo-bar">Демо-режим: данные хранятся только в этом браузере</div>}
+      <header className="topbar">
+        <Logo />
+        <span className="topbar-date">{fmtDate(today())}</span>
+      </header>
       <main className="main">
         {loading ? (
           <div className="splash">Загрузка…</div>
@@ -62,14 +69,16 @@ function Shell() {
             <Route path="/expenses" element={<ExpensesPage />} />
             <Route path="/properties" element={<PropertiesPage />} />
             <Route path="/more" element={<MorePage />} />
+            <Route path="/guests" element={<GuestsPage />} />
             <Route path="*" element={<Navigate to="/calendar" replace />} />
           </Routes>
         )}
       </main>
       <nav className="tabbar">
+        <div className="tabbar-logo"><Logo /></div>
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to} className={({ isActive }) => 'tab' + (isActive ? ' active' : '')}>
-            <span className="tab-icon">{t.icon}</span>
+            <Icon name={t.icon} size={22} />
             <span>{t.label}</span>
           </NavLink>
         ))}

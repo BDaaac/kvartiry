@@ -1,4 +1,4 @@
--- Схема базы «Квартиры».
+-- Схема базы Rentiq.
 -- Запустить один раз: Supabase → SQL Editor → New query → вставить весь файл → Run.
 
 create extension if not exists btree_gist;
@@ -9,10 +9,12 @@ create table if not exists properties (
   user_id       uuid not null default auth.uid() references auth.users on delete cascade,
   name          text not null,
   address       text,
-  color         text not null default '#0f766e',
+  color         text not null default '#5b4fe0',
   rate_daily    numeric(12,0),          -- базовая цена за сутки, ₸
   rate_monthly  numeric(12,0),          -- базовая цена за месяц, ₸
   notes         text,                   -- код домофона, wifi и т.п.
+  welcome_message text,                 -- сообщение гостю после бронирования (WhatsApp)
+  paid_message  text,                   -- сообщение после оплаты, с кодом доступа
   archived      boolean not null default false,
   created_at    timestamptz not null default now()
 );
@@ -33,6 +35,7 @@ create table if not exists bookings (
   deposit       numeric(12,0) not null default 0, -- залог (не доход)
   source        text not null default 'krisha',
   status        text not null default 'confirmed' check (status in ('pending','confirmed','cancelled')),
+  access_code   text,                   -- код доступа в квартиру для этого гостя
   notes         text,
   created_at    timestamptz not null default now(),
   constraint dates_ok check (check_out is null or check_out > check_in),
