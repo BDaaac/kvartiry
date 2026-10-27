@@ -23,6 +23,8 @@ export function whatsappLink(phone, text = '') {
 
 export const SOURCES = [
   { id: 'krisha', label: 'Krisha.kz' },
+  { id: 'booking', label: 'Booking.com' },
+  { id: 'airbnb', label: 'Airbnb' },
   { id: 'whatsapp', label: 'WhatsApp' },
   { id: 'repeat', label: 'Постоянный гость' },
   { id: 'friends', label: 'Знакомые' },
@@ -40,15 +42,16 @@ export const methodLabel = (id) => METHODS.find((s) => s.id === id)?.label || id
 
 export const PAYMENT_KINDS = [
   { id: 'payment', label: 'Оплата' },
-  { id: 'deposit', label: 'Залог получен' },
-  { id: 'deposit_return', label: 'Залог возвращён' },
+  { id: 'deposit', label: 'Депозит получен' },
+  { id: 'deposit_return', label: 'Депозит возвращён' },
+  { id: 'deposit_keep', label: 'Депозит удержан' },
   { id: 'refund', label: 'Возврат гостю' },
 ]
 export const kindLabel = (id) => PAYMENT_KINDS.find((s) => s.id === id)?.label || id
 
 export const EXPENSE_CATEGORIES = [
   'Аренда', 'Коммуналка', 'Уборка', 'Стирка', 'Ремонт', 'Мебель и техника',
-  'Расходники', 'Интернет и ТВ', 'Реклама Krisha', 'Налоги', 'Другое',
+  'Реклама', 'Комиссия площадок', 'Расходники', 'Интернет и ТВ', 'Налоги', 'Другое',
 ]
 
 export const STATUSES = [
@@ -58,4 +61,4 @@ export const STATUSES = [
 ]
 export const statusLabel = (id) => STATUSES.find((s) => s.id === id)?.label || id
 
-export const PROPERTY_COLORS = ['#5b4fe0', '#e8613f', '#0f9f8f', '#d9468f', '#2f86d6', '#c88a12', '#7a3fd0', '#3f9142']
+export const PROPERTY_COLORS = ['#a8662e', '#2f7fb8', '#5f8f4e', '#c25b3c', '#8a6bb0', '#c9952b', '#3f8f8a', '#b5577f']

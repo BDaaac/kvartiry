@@ -9,7 +9,7 @@ create table if not exists properties (
   user_id       uuid not null default auth.uid() references auth.users on delete cascade,
   name          text not null,
   address       text,
-  color         text not null default '#5b4fe0',
+  color         text not null default '#a8662e',
   rate_daily    numeric(12,0),          -- базовая цена за сутки, ₸
   rate_monthly  numeric(12,0),          -- базовая цена за месяц, ₸
   notes         text,                   -- код домофона, wifi и т.п.
@@ -32,7 +32,7 @@ create table if not exists bookings (
   guests_count  int,
   price_total   numeric(12,0),          -- посуточно: сумма за всё проживание
   monthly_rate  numeric(12,0),          -- помесячно: сумма в месяц
-  deposit       numeric(12,0) not null default 0, -- залог (не доход)
+  deposit       numeric(12,0) not null default 0, -- депозит гостя (не доход, возвращается)
   source        text not null default 'krisha',
   status        text not null default 'confirmed' check (status in ('pending','confirmed','cancelled')),
   access_code   text,                   -- код доступа в квартиру для этого гостя
@@ -55,7 +55,7 @@ create table if not exists payments (
   amount      numeric(12,0) not null,
   paid_at     date not null default current_date,
   method      text not null default 'kaspi' check (method in ('kaspi','cash','transfer','other')),
-  kind        text not null default 'payment' check (kind in ('payment','deposit','deposit_return','refund')),
+  kind        text not null default 'payment' check (kind in ('payment','deposit','deposit_return','deposit_keep','refund')),
   note        text,
   created_at  timestamptz not null default now()
 );

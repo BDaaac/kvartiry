@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useData } from '../store'
 import { addDays, addMonths, diffDays, fmtDate, today, nightsLabel, plural } from '../lib/dates'
-import { balance, depositHeld, findOverlap, monthlyPeriods, contractTotal, nightsOf, isActive } from '../lib/calc'
-import { normPhone } from '../lib/guests'
+import { balance, findOverlap, monthlyPeriods, contractTotal, nightsOf, isActive } from '../lib/calc'
+import { normPhone, buildGuests } from '../lib/guests'
 import { money, whatsappLink, SOURCES, METHODS, PAYMENT_KINDS, STATUSES, kindLabel, methodLabel } from '../lib/format'
 import { Field, MoneyInput, Segmented, Chips, PropertySelect } from '../components/ui'
 import { fillMessage } from '../lib/welcome'
 import Icon from '../components/Icon'
+import DepositBox from '../components/DepositBox'
 
 // key по id: при переходе «новая → сохранённая» форма создаётся заново
 export default function BookingRoute() {
@@ -55,6 +56,8 @@ function BookingPage() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
   const [focus, setFocus] = useState(params.get('welcome') === '1' ? 'booked' : null)
+  const [nameOpen, setNameOpen] = useState(false)
+  const guests = useMemo(() => buildGuests(data.bookings, data.payments), [data.bookings, data.payments])
 
   if (!isNew && !existing) {
     return <div className="page"><p>Бронь не найдена.</p><button className="btn" onClick={() => navigate(-1)}>Назад</button></div>
@@ -67,6 +70,21 @@ function BookingPage() {
   const regular = phoneKey.length >= 11
     ? data.bookings.filter((b) => b.id !== f.id && isActive(b) && normPhone(b.guest_phone) === phoneKey).sort((a, b) => (a.check_in < b.check_in ? 1 : -1))
     : []
+  // подсказки бывших гостей при вводе имени (или телефона в поле имени)
+  const nameQ = (f.guest_name || '').trim().toLowerCase()
+  const nameDigits = nameQ.replace(/\D/g, '')
+  const suggestions = nameOpen && nameQ
+    ? guests.filter((g) => (g.name.toLowerCase().includes(nameQ) || (nameDigits.length >= 3 && normPhone(g.phone).includes(nameDigits))) &&
+        !(g.name.toLowerCase() === nameQ && normPhone(g.phone) === normPhone(f.guest_phone)))
+      .sort((a, b) => b.name.toLowerCase().startsWith(nameQ) - a.name.toLowerCase().startsWith(nameQ))
+      .slice(0, 5)
+    : []
+  const pickGuest = (g) => {
+    const last = g.bookings[0]
+    set({ guest_name: g.name, guest_phone: g.phone, guests_count: last?.guests_count ?? f.guests_count, ...(isNew ? { source: 'repeat' } : {}) })
+    setNameOpen(false)
+  }
+
   const setPhone = (phone) => {
     const k = normPhone(phone)
     const prev = !f.guest_name && k.length >= 11 && data.bookings.find((b) => normPhone(b.guest_phone) === k && b.guest_name)
@@ -197,15 +215,31 @@ function BookingPage() {
         )}
 
         <div className="grid2">
-          <Field label="Имя гостя"><input value={f.guest_name || ''} onChange={(e) => set({ guest_name: e.target.value })} placeholder="Например, Айгерим" /></Field>
+          <Field label="Имя гостя">
+            <input value={f.guest_name || ''} onChange={(e) => { set({ guest_name: e.target.value }); setNameOpen(true) }}
+              onFocus={() => setNameOpen(true)} onBlur={() => setNameOpen(false)} placeholder="Начните вводить имя" autoComplete="off" />
+          </Field>
           <Field label="Телефон"><input type="tel" inputMode="tel" value={f.guest_phone || ''} onChange={(e) => setPhone(e.target.value)} placeholder="8 707 123 45 67" /></Field>
         </div>
+        {suggestions.length > 0 && (
+          <ul className="suggest" role="listbox" aria-label="Бывшие гости">
+            {suggestions.map((g) => (
+              <li key={g.key} role="option" onMouseDown={(e) => { e.preventDefault(); pickGuest(g) }}>
+                <span className="grow">
+                  <b>{g.name || 'Без имени'}</b>
+                  <small>{g.phone || 'без телефона'} · {g.stays} {plural(g.stays, 'визит', 'визита', 'визитов')}, последний {fmtDate(g.last, true)}</small>
+                </span>
+                <span className="badge live">выбрать</span>
+              </li>
+            ))}
+          </ul>
+        )}
         {regular.length > 0 && (
           <p className="regular-hint">🔁 Постоянный гость: уже {regular.length} {plural(regular.length, 'раз', 'раза', 'раз')}, последний — {fmtDate(regular[0].check_in, true)}</p>
         )}
         <div className="grid2">
           <Field label="Сколько человек"><input inputMode="numeric" value={f.guests_count ?? ''} onChange={(e) => set({ guests_count: e.target.value.replace(/\D/g, '') })} /></Field>
-          <Field label="Залог"><MoneyInput value={f.deposit} onChange={(v) => set({ deposit: v })} /></Field>
+          <Field label="Депозит (вернуть после выезда)"><MoneyInput value={f.deposit} onChange={(v) => set({ deposit: v })} /></Field>
         </div>
 
         <Field label="Откуда гость"><Chips value={f.source} onChange={(v) => set({ source: v })} options={SOURCES} /></Field>
@@ -306,7 +340,6 @@ function Payments({ booking, property, onPaid }) {
   const { data, save, remove, notify } = useData()
   const t = today()
   const bal = balance(booking, data.payments, t)
-  const held = depositHeld(booking.id, data.payments)
   const list = data.payments.filter((p) => p.booking_id === booking.id).sort((a, b) => (a.paid_at < b.paid_at ? 1 : -1))
   const [p, setP] = useState({ amount: '', paid_at: t, method: 'kaspi', kind: 'payment', note: '' })
   const [open, setOpen] = useState(false)
@@ -348,9 +381,10 @@ function Payments({ booking, property, onPaid }) {
         )}
         <div><small>Оплачено</small><b className="pos">{money(bal.paid)}</b></div>
         <div><small>Осталось</small><b className={bal.left ? 'neg' : ''}>{money(bal.left)}</b></div>
-        {(booking.deposit > 0 || held > 0) && <div><small>Залог на руках</small><b>{money(held)}{booking.deposit > 0 && held < booking.deposit ? ` из ${money(booking.deposit)}` : ''}</b></div>}
         {nextDue && <div><small>Следующая оплата</small><b>{fmtDate(nextDue)}</b></div>}
       </div>
+
+      <DepositBox booking={booking} />
 
       <div className="btn-row">
         {!open && (

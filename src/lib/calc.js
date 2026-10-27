@@ -53,7 +53,7 @@ export function depositHeld(bookingId, payments) {
   for (const p of payments) {
     if (p.booking_id !== bookingId) continue
     if (p.kind === 'deposit') s += +p.amount
-    if (p.kind === 'deposit_return') s -= +p.amount
+    if (p.kind === 'deposit_return' || p.kind === 'deposit_keep') s -= +p.amount
   }
   return s
 }
@@ -111,6 +111,7 @@ export function analyze({ properties, bookings, payments, expenses }, from, to, 
     const row = byProp.get(b.property_id)
     if (p.kind === 'payment') row.income += +p.amount
     if (p.kind === 'refund') row.income -= +p.amount
+    if (p.kind === 'deposit_keep') row.income += +p.amount // удержанный депозит — это доход
   }
 
   let commonExpenses = 0
@@ -193,3 +194,23 @@ export function todayEvents(bookings, day = today()) {
 }
 
 
+
+/**
+ * Депозит по брони: сколько ждём, получили, вернули, удержали и сколько на руках.
+ * status: none | waiting (гость ещё не внёс) | holding (держим) | to_return (гость выехал — пора вернуть) | closed
+ */
+export function depositInfo(b, payments, asOf = today()) {
+  const r = { expected: +b.deposit || 0, received: 0, returned: 0, kept: 0 }
+  for (const p of payments) {
+    if (p.booking_id !== b.id) continue
+    if (p.kind === 'deposit') r.received += +p.amount
+    if (p.kind === 'deposit_return') r.returned += +p.amount
+    if (p.kind === 'deposit_keep') r.kept += +p.amount
+  }
+  r.held = r.received - r.returned - r.kept
+  if (r.held > 0) r.status = b.check_out && b.check_out <= asOf ? 'to_return' : 'holding'
+  else if (r.received > 0) r.status = 'closed'
+  else if (r.expected > 0 && isActive(b)) r.status = 'waiting'
+  else r.status = 'none'
+  return r
+}

@@ -11,6 +11,7 @@ import ExpensesPage from './pages/ExpensesPage'
 import PropertiesPage from './pages/PropertiesPage'
 import MorePage from './pages/MorePage'
 import GuestsPage from './pages/GuestsPage'
+import DepositsPage from './pages/DepositsPage'
 import Icon, { Logo } from './components/Icon'
 import { fmtDate, today } from './lib/dates'
 
@@ -70,6 +71,7 @@ function Shell() {
             <Route path="/properties" element={<PropertiesPage />} />
             <Route path="/more" element={<MorePage />} />
             <Route path="/guests" element={<GuestsPage />} />
+            <Route path="/deposits" element={<DepositsPage />} />
             <Route path="*" element={<Navigate to="/calendar" replace />} />
           </Routes>
         )}

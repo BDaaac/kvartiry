@@ -52,19 +52,23 @@ function demoSeed() {
     if (x.check_in <= t) payments.push({ id: uid(), booking_id: x.id, amount: x.price_total, paid_at: x.check_in, method: 'kaspi', kind: 'payment' })
     else payments.push({ id: uid(), booking_id: x.id, amount: 10000, paid_at: addDays(t, -2), method: 'kaspi', kind: 'payment' })
   }
+  // депозиты: Данияр выехал — пора вернуть, Алия живёт — держим, Тимур ещё не внёс
+  for (const i of [3, 4, 5]) bookings[i].deposit = 10000
+  payments.push({ id: uid(), booking_id: bookings[3].id, amount: 10000, paid_at: bookings[3].check_in, method: 'cash', kind: 'deposit' })
+  payments.push({ id: uid(), booking_id: bookings[4].id, amount: 10000, paid_at: bookings[4].check_in, method: 'kaspi', kind: 'deposit' })
   // последнюю текущую бронь оставим с долгом
   payments.find((p) => p.booking_id === bookings[4].id).amount = 40000
   const expenses = [
     { id: uid(), property_id: p1, category: 'Коммуналка', amount: 28000, spent_at: addDays(t, -20), note: '' },
     { id: uid(), property_id: p2, category: 'Коммуналка', amount: 24000, spent_at: addDays(t, -20), note: '' },
     { id: uid(), property_id: p1, category: 'Уборка', amount: 15000, spent_at: addDays(t, -10), note: '' },
-    { id: uid(), property_id: null, category: 'Реклама Krisha', amount: 9000, spent_at: addDays(t, -30), note: 'Поднятие объявлений' },
+    { id: uid(), property_id: null, category: 'Реклама', amount: 9000, spent_at: addDays(t, -30), note: 'Поднятие объявлений' },
     { id: uid(), property_id: p2, category: 'Ремонт', amount: 35000, spent_at: addMonths(t, -1), note: 'Смеситель' },
   ]
   return {
     properties: [
-      { id: p1, name: 'Квартира на Абая', address: 'пр. Абая, 10', color: '#5b4fe0', rate_daily: 15000, rate_monthly: 250000, notes: 'Wi-Fi: home123', welcome_message: EXAMPLE_WELCOME, paid_message: EXAMPLE_PAID, archived: false },
-      { id: p2, name: 'Квартира на Сатпаева', address: 'ул. Сатпаева, 5', color: '#e8613f', rate_daily: 14000, rate_monthly: 230000, notes: '', archived: false },
+      { id: p1, name: 'Квартира на Абая', address: 'пр. Абая, 10', color: '#a8662e', rate_daily: 15000, rate_monthly: 250000, notes: 'Wi-Fi: home123', welcome_message: EXAMPLE_WELCOME, paid_message: EXAMPLE_PAID, archived: false },
+      { id: p2, name: 'Квартира на Сатпаева', address: 'ул. Сатпаева, 5', color: '#2f7fb8', rate_daily: 14000, rate_monthly: 230000, notes: '', archived: false },
     ],
     bookings, payments, expenses,
   }

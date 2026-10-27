@@ -1,11 +1,11 @@
-// Рисует PNG-иконки Rentiq (белый домик на индиго-градиенте) без внешних библиотек.
+// Рисует PNG-иконки Rentiq (белый домик на карамельном градиенте) без внешних библиотек.
 import { writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
 
-const TOP = [112, 99, 242]
-const BOTTOM = [74, 63, 208]
+const TOP = [194, 134, 79]
+const BOTTOM = [148, 88, 42]
 const FG = [255, 255, 255]
-const DOOR = [232, 97, 63]
+const DOOR = [74, 52, 36]
 
 function crc32(buf) {
   let c, crc = 0xffffffff

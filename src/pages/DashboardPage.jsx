@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom'
 import { ResponsiveContainer, ComposedChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { useData } from '../store'
 import { addDays, addMonths, fmtDate, fmtMonth, fmtMonthShort, monthStart, nextMonthStart, today, yearStart } from '../lib/dates'
-import { analyze, monthlySeries, debts } from '../lib/calc'
+import { analyze, monthlySeries, debts, depositInfo } from '../lib/calc'
 import { money, moneyShort, pct, sourceLabel } from '../lib/format'
 import { exportExcel } from '../lib/export'
 import { Chips, Dot, PropertySelect } from '../components/ui'
 import Icon from '../components/Icon'
 
-const C_INCOME = '#5b4fe0'
-const C_EXPENSE = '#e8613f'
-const C_INK = '#1b1a2e'
+const C_INCOME = '#a8662e'
+const C_EXPENSE = '#2f7fb8'
+const C_INK = '#2e2620'
 
 const PERIODS = [
   { id: 'month', label: 'Этот месяц' },
@@ -51,6 +51,9 @@ export default function DashboardPage() {
   const owed = useMemo(() => debts(data.bookings, data.payments, ids, t), [data, ids, t])
   const owedNow = owed.filter((d) => d.overdue)
   const owedLater = owed.filter((d) => !d.overdue)
+  const deps = data.bookings.map((b) => depositInfo(b, data.payments, t)).filter((d) => d.held > 0)
+  const depHeld = deps.reduce((x, d) => x + d.held, 0)
+  const depReturn = deps.filter((d) => d.status === 'to_return').length
 
   return (
     <div className="page">
@@ -86,6 +89,17 @@ export default function DashboardPage() {
         <Kpi label="Средняя цена за ночь" value={money(a.adr)} sub="посуточные брони" />
         <Kpi label="Долги гостей" value={money(owedNow.reduce((s, d) => s + d.left, 0))} tone={owedNow.length ? 'neg' : ''} sub={owedNow.length ? `${owedNow.length} брон.` : 'нет'} />
       </div>
+
+      {depHeld > 0 && (
+        <Link to="/deposits" className={'card menu-item' + (depReturn ? ' card-alert' : '')}>
+          <span className="icon-chip"><Icon name="key" /></span>
+          <span className="grow">
+            <b>Депозиты на руках: {money(depHeld)}</b>
+            <small>{depReturn ? `${depReturn} — пора вернуть гостям` : 'это деньги гостей, не доход'}</small>
+          </span>
+          <span className="chev">›</span>
+        </Link>
+      )}
 
       <section className="card">
         <h2>Доходы и расходы по месяцам</h2>

@@ -3,8 +3,8 @@
   "short_name": "Rentiq",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f6f5fb",
-  "theme_color": "#5b4fe0",
+  "background_color": "#f5efe6",
+  "theme_color": "#a8662e",
   "lang": "ru",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },

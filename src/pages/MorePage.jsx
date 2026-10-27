@@ -47,6 +47,12 @@ export default function MorePage() {
         <span className="chev">›</span>
       </Link>
 
+      <Link to="/deposits" className="card menu-item">
+        <span className="icon-chip"><Icon name="key" /></span>
+        <span className="grow"><b>Депозиты</b><small>кто внёс, что держим, что пора вернуть</small></span>
+        <span className="chev">›</span>
+      </Link>
+
       <Link to="/guests" className="card menu-item">
         <span className="icon-chip coral"><Icon name="users" /></span>
         <span className="grow"><b>Гости</b><small>история, постоянные гости, повтор брони</small></span>
