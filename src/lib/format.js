@@ -47,7 +47,7 @@ export const PAYMENT_KINDS = [
 export const kindLabel = (id) => PAYMENT_KINDS.find((s) => s.id === id)?.label || id
 
 export const EXPENSE_CATEGORIES = [
-  'Коммуналка', 'Уборка', 'Стирка', 'Ремонт', 'Мебель и техника',
+  'Аренда', 'Коммуналка', 'Уборка', 'Стирка', 'Ремонт', 'Мебель и техника',
   'Расходники', 'Интернет и ТВ', 'Реклама Krisha', 'Налоги', 'Другое',
 ]
 
