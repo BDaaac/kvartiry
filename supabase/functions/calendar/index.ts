@@ -35,7 +35,18 @@ function fold(line: string) {
   return out.join('\r\n ')
 }
 
-function allDay(uid: string, start: string, end: string, title: string, desc: string) {
+// Будильники для событий «на весь день»: время отсчитывается от полуночи дня события.
+// -PT6H — накануне в 18:00, PT9H — в сам день в 9:00, -P2DT14H — за 3 дня в 10:00.
+type Alarm = [trigger: string, text: string]
+const DAY_BEFORE = '-PT6H', MORNING = 'PT9H', THREE_DAYS = '-P2DT14H'
+
+function alarms(list: Alarm[]) {
+  return list.flatMap(([trigger, text]) => [
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${esc(text)}`, `TRIGGER:${trigger}`, 'END:VALARM',
+  ])
+}
+
+function allDay(uid: string, start: string, end: string, title: string, desc: string, remind: Alarm[] = []) {
   return [
     'BEGIN:VEVENT',
     `UID:${uid}@kvartiry`,
@@ -45,6 +56,7 @@ function allDay(uid: string, start: string, end: string, title: string, desc: st
     `SUMMARY:${esc(title)}`,
     `DESCRIPTION:${esc(desc)}`,
     'TRANSP:TRANSPARENT',
+    ...alarms(remind),
     'END:VEVENT',
   ]
 }
@@ -79,22 +91,26 @@ Deno.serve(async (req) => {
     if (b.mode === 'daily') {
       const n = nights(b.check_in, b.check_out)
       lines.push(...allDay(`${b.id}-stay`, b.check_in, b.check_out,
-        `🏠 ${p}: ${guest}, ${n} н.${pending}`, `Сумма: ${money(b.price_total)}${phone}${b.notes ? '\n' + b.notes : ''}`))
+        `🏠 ${p}: ${guest}, ${n} н.${pending}`, `Сумма: ${money(b.price_total)}${phone}${b.notes ? '\n' + b.notes : ''}`,
+        [[DAY_BEFORE, `Завтра заезд: ${guest}, ${p}`], [MORNING, `Сегодня заезд: ${guest}, ${p}`]]))
       lines.push(...allDay(`${b.id}-out`, b.check_out, addDays(b.check_out, 1),
-        `🧹 Выезд и уборка: ${p}`, `${guest}${phone}`))
+        `🧹 Выезд и уборка: ${p}`, `${guest}${phone}`, [[MORNING, `Сегодня выезд и уборка: ${p}`]]))
     } else {
       const end = b.check_out ?? addMonths(today, 12)
       lines.push(...allDay(`${b.id}-in`, b.check_in, addDays(b.check_in, 1),
-        `🔑 Заезд: ${p}, ${guest} (помесячно)${pending}`, `${money(b.monthly_rate)} в месяц${phone}`))
+        `🔑 Заезд: ${p}, ${guest} (помесячно)${pending}`, `${money(b.monthly_rate)} в месяц${phone}`,
+        [[DAY_BEFORE, `Завтра заезд: ${guest}, ${p}`], [MORNING, `Сегодня заезд: ${guest}, ${p}`]]))
       for (let i = 1; i < 120; i++) {
         const d = addMonths(b.check_in, i)
         if (d >= end) break
         if (d < since) continue
         lines.push(...allDay(`${b.id}-pay-${i}`, d, addDays(d, 1),
-          `💰 Оплата: ${p}, ${guest} — ${money(b.monthly_rate)}`, phone.trim()))
+          `💰 Оплата: ${p}, ${guest} — ${money(b.monthly_rate)}`, phone.trim(),
+          [[THREE_DAYS, `Через 3 дня оплата аренды: ${guest}, ${money(b.monthly_rate)}`], [MORNING, `Сегодня день оплаты аренды: ${guest}, ${money(b.monthly_rate)}`]]))
       }
       if (b.check_out) {
-        lines.push(...allDay(`${b.id}-out`, b.check_out, addDays(b.check_out, 1), `🧹 Выезд: ${p}, ${guest}`, phone.trim()))
+        lines.push(...allDay(`${b.id}-out`, b.check_out, addDays(b.check_out, 1), `🧹 Выезд: ${p}, ${guest}`, phone.trim(),
+          [[DAY_BEFORE, `Завтра выезд: ${guest}, ${p}`], [MORNING, `Сегодня выезд: ${guest}, ${p}`]]))
       }
     }
   }

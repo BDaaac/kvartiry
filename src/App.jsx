@@ -13,6 +13,7 @@ import MorePage from './pages/MorePage'
 import GuestsPage from './pages/GuestsPage'
 import DepositsPage from './pages/DepositsPage'
 import Icon, { Logo } from './components/Icon'
+import { useUrgentCount } from './components/Reminders'
 import { fmtDate, today } from './lib/dates'
 
 export default function App() {
@@ -37,14 +38,15 @@ export default function App() {
 
 const TABS = [
   { to: '/calendar', label: 'Календарь', icon: 'calendar' },
+  { to: '/money', label: 'Финансы', icon: 'chart' },
   { to: '/bookings', label: 'Брони', icon: 'key' },
-  { to: '/money', label: 'Деньги', icon: 'chart' },
   { to: '/expenses', label: 'Расходы', icon: 'receipt' },
   { to: '/more', label: 'Ещё', icon: 'grid' },
 ]
 
 function Shell() {
   const { loading, error, reload, toast } = useData()
+  const urgent = useUrgentCount()
   return (
     <div className="app">
       {isDemo && <div className="demo-bar">Демо-режим: данные хранятся только в этом браузере</div>}
@@ -80,7 +82,10 @@ function Shell() {
         <div className="tabbar-logo"><Logo /></div>
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to} className={({ isActive }) => 'tab' + (isActive ? ' active' : '')}>
-            <Icon name={t.icon} size={22} />
+            <span className="tab-ic">
+              <Icon name={t.icon} size={22} />
+              {t.to === '/calendar' && urgent > 0 && <i className="tab-badge">{urgent}</i>}
+            </span>
             <span>{t.label}</span>
           </NavLink>
         ))}

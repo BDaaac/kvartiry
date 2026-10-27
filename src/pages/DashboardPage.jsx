@@ -58,7 +58,7 @@ export default function DashboardPage() {
   return (
     <div className="page">
       <div className="page-head">
-        <h1>Деньги</h1>
+        <h1>Финансы</h1>
         <button className="btn" onClick={() => exportExcel(data, from, to, ids, title)}><Icon name="download" size={18} /> Excel</button>
       </div>
 

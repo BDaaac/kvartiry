@@ -363,3 +363,25 @@ input[type='search'] { background: var(--card); box-shadow: var(--shadow); borde
 .deposit-row:first-child { border-top: 0; padding-top: 6px; }
 .deposit-who small { display: block; color: var(--muted); }
 .card-alert { box-shadow: 0 0 0 2px var(--neg), var(--shadow); }
+
+/* Шахматка на телефоне: узкая колонка квартир, 7 дней на экран */
+@media (max-width: 719px) {
+  .board-names { width: 78px; }
+  .board-name { padding: 0 6px; font-size: 11px; line-height: 1.15; hyphens: auto; overflow-wrap: normal; }
+  .board-name .dot { width: 8px; height: 8px; margin-right: 4px; }
+  .board-scroll { scrollbar-width: none; }
+  .board .bar { font-size: 11px; padding: 0 6px; border-radius: 8px; }
+  .day-head { font-size: 13px; }
+}
+
+/* ---------- Напоминания ---------- */
+.reminders { display: flex; flex-direction: column; gap: 6px; }
+.reminders .group-head { margin-bottom: 4px; }
+.reminders .group-head h2 { margin: 0; }
+.reminder { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: var(--radius-sm); background: var(--bg); }
+.reminder small { display: block; color: var(--muted); }
+.reminder-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); flex: none; }
+.reminder.urgent { background: var(--neg-soft); }
+.reminder.urgent .reminder-icon { background: var(--neg); color: #fff; }
+.tab-ic { position: relative; display: inline-flex; }
+.tab-badge { position: absolute; top: -5px; right: -9px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--neg); color: #fff; font-size: 10px; font-weight: 800; font-style: normal; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--card); }

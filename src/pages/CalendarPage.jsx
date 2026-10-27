@@ -5,8 +5,9 @@ import { addDays, addMonths, diffDays, fmtDate, fmtMonth, monthStart, nextMonthS
 import { isActive, endOf, balance, nightsOf } from '../lib/calc'
 import { Dot, Empty, Segmented } from '../components/ui'
 import Icon from '../components/Icon'
+import Reminders from '../components/Reminders'
 
-const W = 52 // ширина дня в шахматке, px
+const W_DESKTOP = 52 // ширина дня в шахматке на компьютере, px
 const WEEK_HEAD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 const VIEWS = [{ id: 'month', label: 'Месяц' }, { id: 'board', label: 'Шахматка' }]
 
@@ -56,6 +57,8 @@ export default function CalendarPage() {
         <h1>Календарь</h1>
         <Link className="btn primary" to="/booking/new"><Icon name="plus" size={18} /> Бронь</Link>
       </div>
+
+      <Reminders />
 
       <Segmented value={view} onChange={setView} options={VIEWS} />
 
@@ -215,6 +218,18 @@ function EventList({ title, items, propertyById }) {
 // ---------- Шахматка: квартиры × дни ----------
 function Board({ month, t, properties, bookings, payments, onEmpty, onOpen }) {
   const scroller = useRef(null)
+  // на телефоне — ровно 7 дней на ширину экрана
+  const [W, setW] = useState(W_DESKTOP)
+  const [scrollX, setScrollX] = useState(0)
+  useEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    const fit = () => setW(window.innerWidth < 720 ? Math.floor(el.clientWidth / 7) : W_DESKTOP)
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
   const from = addDays(month, -3)
   const to = addDays(nextMonthStart(month), 3)
   const days = useMemo(() => Array.from({ length: diffDays(from, to) }, (_, i) => addDays(from, i)), [from, to])
@@ -224,7 +239,7 @@ function Board({ month, t, properties, bookings, payments, onEmpty, onOpen }) {
     if (!el) return
     const idx = t >= from && t < to ? diffDays(from, t) : 3
     el.scrollLeft = Math.max(0, idx * W - W)
-  }, [from, to, t])
+  }, [from, to, t, W])
 
   return (
     <div className="board">
@@ -234,7 +249,7 @@ function Board({ month, t, properties, bookings, payments, onEmpty, onOpen }) {
           <div className="board-name" key={p.id} title={p.name}><Dot color={p.color} />{p.name}</div>
         ))}
       </div>
-      <div className="board-scroll" ref={scroller}>
+      <div className="board-scroll" ref={scroller} onScroll={(e) => setScrollX(e.currentTarget.scrollLeft)}>
         <div style={{ width: days.length * W }}>
           <div className="board-days">
             {days.map((d) => {
@@ -248,7 +263,7 @@ function Board({ month, t, properties, bookings, payments, onEmpty, onOpen }) {
             })}
           </div>
           {properties.map((p) => (
-            <BoardRow key={p.id} property={p} days={days} from={from} to={to} t={t}
+            <BoardRow key={p.id} property={p} days={days} from={from} to={to} t={t} W={W} scrollX={scrollX}
               bookings={bookings} payments={payments} onEmpty={(d) => onEmpty(p, d)} onOpen={onOpen} />
           ))}
         </div>
@@ -257,7 +272,7 @@ function Board({ month, t, properties, bookings, payments, onEmpty, onOpen }) {
   )
 }
 
-function BoardRow({ property, days, from, to, t, bookings, payments, onEmpty, onOpen }) {
+function BoardRow({ property, days, from, to, t, W, scrollX, bookings, payments, onEmpty, onOpen }) {
   const items = bookings.filter((b) => b.property_id === property.id && b.check_in < to && endOf(b) > from)
   return (
     <div className="board-row">
@@ -271,11 +286,14 @@ function BoardRow({ property, days, from, to, t, bookings, payments, onEmpty, on
         const end = endOf(b) >= to ? days.length * W : diffDays(from, b.check_out) * W + W / 2
         const debt = balance(b, payments, t).left > 0 && b.check_in <= t
         const n = nightsOf(b)
+        const width = Math.max(end - start - 2, 10)
+        // если начало брони уехало влево за экран — сдвигаем имя гостя в видимую часть
+        const pad = Math.min(Math.max(8, scrollX - start + 6), Math.max(8, width - 40))
         return (
           <button key={b.id} className={`bar ${b.status}${debt ? ' debt' : ''}`}
-            style={{ left: start + 1, width: Math.max(end - start - 2, 10), '--c': property.color }}
+            style={{ left: start + 1, width, paddingLeft: pad, '--c': property.color }}
             onClick={() => onOpen(b)} title={b.guest_name || ''}>
-            {b.guest_name || 'Гость'}{n ? ` · ${n}н` : b.mode === 'monthly' ? ' · мес' : ''}
+            {b.guest_name || 'Гость'}{W >= 48 ? (n ? ` · ${n}н` : b.mode === 'monthly' ? ' · мес' : '') : ''}
           </button>
         )
       })}
