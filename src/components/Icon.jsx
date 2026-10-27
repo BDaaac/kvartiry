@@ -26,12 +26,12 @@ export default function Icon({ name, size = 20, className = '' }) {
   )
 }
 
-/** Логотип: знак + слово Rentiq */
+/** Логотип: знак + слово rent.kz */
 export function Logo({ size = 28 }) {
   return (
     <span className="logo">
       <img src="./icon-192.png" alt="" width={size} height={size} />
-      <span>Rent<b>iq</b></span>
+      <span>rent<b>.kz</b></span>
     </span>
   )
 }

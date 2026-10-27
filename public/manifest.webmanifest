@@ -1,6 +1,6 @@
 {
-  "name": "Rentiq — учёт аренды",
-  "short_name": "Rentiq",
+  "name": "rent.kz — учёт аренды",
+  "short_name": "rent.kz",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5efe6",

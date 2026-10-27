@@ -1,4 +1,4 @@
--- Схема базы Rentiq.
+-- Схема базы rent.kz.
 -- Запустить один раз: Supabase → SQL Editor → New query → вставить весь файл → Run.
 
 create extension if not exists btree_gist;

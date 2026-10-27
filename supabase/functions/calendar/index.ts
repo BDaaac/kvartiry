@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
 
   const lines = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//kvartiry//RU', 'CALSCALE:GREGORIAN',
-    'X-WR-CALNAME:Rentiq', 'X-WR-TIMEZONE:Asia/Almaty', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H',
+    'X-WR-CALNAME:rent.kz', 'X-WR-TIMEZONE:Asia/Almaty', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H',
     'X-PUBLISHED-TTL:PT1H',
   ]
 

@@ -1,4 +1,4 @@
-// Рисует PNG-иконки Rentiq (белый домик на карамельном градиенте) без внешних библиотек.
+// Рисует PNG-иконки rent.kz (белый домик на карамельном градиенте) без внешних библиотек.
 import { writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
 
